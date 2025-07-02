@@ -74,7 +74,7 @@ public class PlayerServiceImpl implements PlayerService {
         try {
              currentList = provider.load();
         } catch (Exception ex){
-            System.err.println("File loading error. "+ ex);
+            System.err.println("File loading error 1. "+ ex);
         }
 
         players = new HashMap<>();

@@ -12,7 +12,7 @@ public class DataProviderJSON implements DataProvider{
     private final static Path FILEPATH = Path.of("data.json");
     @Override
     public void save(Collection<Player> players) throws IOException {
-        mapper.writeValue(FILEPATH.toFile(), players);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), players);
     }
 
     @Override
