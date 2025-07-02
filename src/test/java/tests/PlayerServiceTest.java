@@ -2,10 +2,7 @@ package tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import helpers.MyWatchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import ru.inno.course.player.model.Player;
@@ -24,6 +21,16 @@ public class PlayerServiceTest {
 
     @BeforeEach
     public void clearBefore() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final Path FILEPATH = Path.of("data.json");
+
+        Collection<Player> currentList = Collections.EMPTY_LIST;
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
+    }
+
+    @AfterEach
+    public void clearAfter() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         final Path FILEPATH = Path.of("data.json");
 
@@ -85,6 +92,7 @@ public class PlayerServiceTest {
                 () -> assertEquals("No such user: " + expectedDeletedPlayerId, exception.getMessage()));
     }
 
+    //todo: есть ли смысл проверять какого игрока мы удаляем? - возможно есть
     @Test
     @DisplayName("Удалить последнего игрока")
     @Tag("Positive_TC")
