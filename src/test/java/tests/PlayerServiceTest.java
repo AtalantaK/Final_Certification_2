@@ -185,4 +185,22 @@ public class PlayerServiceTest {
                 () -> assertEquals(expectedPoints, service.getPlayerById(actualPlayerId).getPoints()));
 
     }
+
+    @Test
+    @DisplayName("Получить игрока по ID")
+    @Tag("Positive_TC")
+    public void getPlayerByIDTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+        int expectedPlayerId = 1;
+
+        int actualPlayerId = service.createPlayer(expectedPlayerNick);
+        Player actualPlayer = service.getPlayerById(actualPlayerId);
+
+        String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
+
+        assertEquals(expectedPlayer, actualPlayer.toString());
+    }
+
 }
