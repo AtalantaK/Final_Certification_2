@@ -31,7 +31,7 @@ public class PlayerServiceTest {
     }
 
 //    @AfterEach
-//    public void clearAfter() throws IOException {
+//    public void clearAfter() {
 //        final ObjectMapper mapper = new ObjectMapper();
 //        final Path FILEPATH = Path.of("data.json");
 //
@@ -43,23 +43,27 @@ public class PlayerServiceTest {
     @Test
     @DisplayName("Добавить игрока в пустой список")
     @Tag("Positive_TC")
-    public void createPlayerInEmptyListTest() throws Exception {
+    public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
+
         String expectedPlayerNick = "Nick";
         int expectedPlayerId = 1;
         int actualPlayerId = service.createPlayer(expectedPlayerNick);
 
         String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
 
-        assertEquals(expectedPlayer, service.getPlayerById(actualPlayerId).toString());
+        assertAll("Несколько проверок",
+                () -> assertTrue(Files.exists(Path.of("data.json"))),
+                () -> assertEquals(expectedPlayer, service.getPlayerById(actualPlayerId).toString()));
     }
 
     //todo: есть ли смысл проверять в какой список мы добавляем игрока? - возможно есть
     @Test
     @DisplayName("Добавить игрока в не пустой список")
     @Tag("Positive_TC")
-    public void createPlayerInNotEmptyListTest() throws Exception {
+    public void createPlayerInNotEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
+
         String expectedPlayerNick = "Nick2";
         int expectedPlayerId = 2;
 
@@ -74,8 +78,9 @@ public class PlayerServiceTest {
     @Test
     @DisplayName("Удалить не последнего игрока")
     @Tag("Positive_TC")
-    public void deleteNotLastPlayerTest() throws Exception {
+    public void deleteNotLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
+
         String expectedDeletedPlayerNick = "Nick1";
         int expectedDeletedPlayerId = 1;
         service.createPlayer(expectedDeletedPlayerNick);
@@ -98,8 +103,9 @@ public class PlayerServiceTest {
     @Test
     @DisplayName("Удалить последнего игрока")
     @Tag("Positive_TC")
-    public void deleteLastPlayerTest() throws Exception {
+    public void deleteLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
+
         String expectedDeletedPlayerNick = "Nick1";
         int expectedDeletedPlayerId = 1;
         service.createPlayer(expectedDeletedPlayerNick);
@@ -118,9 +124,9 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Создать игрока. JSON файл не существует")
+    @DisplayName("Создать игрока при условии что JSON файл не существует")
     @Tag("Positive_TC")
-    public void createPlayerWithoutJSONTest() throws Exception {
+    public void createPlayerWithoutJSONTest() throws IOException {
         Files.deleteIfExists(Path.of("data.json"));
 
         // Создаем буфер для захвата вывода
@@ -141,5 +147,42 @@ public class PlayerServiceTest {
 
         // Теперь можно использовать значение
         assertTrue(errorOutput.contains("File loading error 1. java.io.FileNotFoundException: data.json (The system cannot find the file specified)"));
+    }
+
+    @Test
+    @DisplayName("Начислить баллы существующему игроку")
+    @Tag("Positive_TC")
+    public void addPointsForExistingPlayerTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+        int actualPlayerId = service.createPlayer(expectedPlayerNick);
+        int expectedPoints = 100;
+        int actualPoints = service.addPoints(actualPlayerId, expectedPoints);
+
+        assertAll("Несколько проверок",
+                () -> assertEquals(expectedPoints, actualPoints),
+                () -> assertEquals(expectedPoints, service.getPlayerById(actualPlayerId).getPoints()));
+
+    }
+
+    @Test
+    @DisplayName("Начислить баллы поверх существующих существующему игроку")
+    @Tag("Positive_TC")
+    public void addAdditionalPointsForExistingPlayerTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+        int points1 = 100;
+        int points2 = 250;
+        int actualPlayerId = service.createPlayer(expectedPlayerNick);
+        service.addPoints(actualPlayerId, points1);
+        int expectedPoints = points1 + points2;
+        int actualPoints = service.addPoints(actualPlayerId, points2);
+
+        assertAll("Несколько проверок",
+                () -> assertEquals(expectedPoints, actualPoints),
+                () -> assertEquals(expectedPoints, service.getPlayerById(actualPlayerId).getPoints()));
+
     }
 }
