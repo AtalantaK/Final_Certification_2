@@ -15,9 +15,12 @@ public class ConsoleApp {
 
         printHelp();
 
+        System.out.print("\nВведите команду: ");
+
         while (true) {
             try {
                 String command = scanner.nextLine();
+
                 if (!isKnownCommand(command)) {
                     System.out.println("Unknown command!");
                     printHelp();
@@ -78,6 +81,7 @@ public class ConsoleApp {
             } catch (Exception ex) {
                 System.err.println(ex.getMessage());
             }
+            System.out.print("\nВведите команду: ");
         }
 
     }
