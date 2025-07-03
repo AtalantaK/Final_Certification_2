@@ -119,9 +119,7 @@ public class PlayerServicePositiveTests {
 
         String expectedDeletedPlayer = "Player{id=" + expectedDeletedPlayerId + ", nick='" + expectedDeletedPlayerNick + "', points=0, isOnline=true}";
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            service.getPlayerById(expectedDeletedPlayerId);
-        });
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedDeletedPlayerId));
 
         assertAll("Несколько проверок",
                 () -> assertEquals(expectedDeletedPlayer, deletedPlayer.toString()),
