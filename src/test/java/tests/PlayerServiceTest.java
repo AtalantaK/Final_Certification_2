@@ -43,7 +43,7 @@ public class PlayerServiceTest {
 //    }
 
     @Test
-    @DisplayName("Добавить игрока в пустой список")
+    @DisplayName("1. Добавить игрока в пустой список")
     @Tag("Positive_TC")
     public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -61,7 +61,7 @@ public class PlayerServiceTest {
 
     //todo: есть ли смысл проверять в какой список мы добавляем игрока? - возможно есть
     @Test
-    @DisplayName("Добавить игрока в не пустой список")
+    @DisplayName("1. Добавить игрока в не пустой список")
     @Tag("Positive_TC")
     public void createPlayerInNotEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -78,7 +78,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Удалить не последнего игрока")
+    @DisplayName("2. Удалить не последнего игрока")
     @Tag("Positive_TC")
     public void deleteNotLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -103,7 +103,7 @@ public class PlayerServiceTest {
 
     //todo: есть ли смысл проверять какого игрока мы удаляем? - возможно есть
     @Test
-    @DisplayName("Удалить последнего игрока")
+    @DisplayName("2. Удалить последнего игрока")
     @Tag("Positive_TC")
     public void deleteLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -126,7 +126,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Создать игрока при условии что JSON файл не существует")
+    @DisplayName("3. Создать игрока при условии что JSON файл не существует")
     @Tag("Positive_TC")
     public void createPlayerWithoutJSONTest() throws IOException {
         Files.deleteIfExists(Path.of("data.json"));
@@ -152,7 +152,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Начислить баллы существующему игроку")
+    @DisplayName("5. Начислить баллы существующему игроку")
     @Tag("Positive_TC")
     public void addPointsForExistingPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -169,7 +169,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Начислить баллы поверх существующих существующему игроку")
+    @DisplayName("6. Начислить баллы поверх существующих существующему игроку")
     @Tag("Positive_TC")
     public void addAdditionalPointsForExistingPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -189,7 +189,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Получить игрока по ID")
+    @DisplayName("7. Получить игрока по ID")
     @Tag("Positive_TC")
     public void getPlayerByIDTest() {
         PlayerService service = new PlayerServiceImpl();
@@ -200,15 +200,37 @@ public class PlayerServiceTest {
         int actualPlayerId = service.createPlayer(expectedPlayerNick);
         Player actualPlayer = service.getPlayerById(actualPlayerId);
 
+        //Формируем эталонную строку нашего игрока
         String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
 
         assertEquals(expectedPlayer, actualPlayer.toString());
     }
 
     @Test
-    @DisplayName("Проверить корректность сохранения в файл")
+    @DisplayName("8. Проверить корректность загрузки json файла")
     @Tag("Positive_TC")
-    public void savingToFileTest() throws IOException {
+    public void savingToFileTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick1 = "Nick1";
+        String expectedPlayerNick2 = "Nick2";
+
+        service.createPlayer(expectedPlayerNick1);
+        service.createPlayer(expectedPlayerNick2);
+
+        File file = new File("data.json");
+
+        assertAll("Несколько проверок",
+                //Проверяем что файл существует
+                () -> assertFalse(Files.exists(Path.of("data.json"))),
+                //Проверяем что файл не пустой
+                () -> assertFalse(file.length() > 0));
+    }
+
+    @Test
+    @DisplayName("9. Проверить корректность загрузки json файла")
+    @Tag("Positive_TC")
+    public void loadJSONFromFileTest() throws IOException {
         PlayerService service = new PlayerServiceImpl();
 
         String expectedPlayerNick1 = "Nick1";
@@ -218,10 +240,12 @@ public class PlayerServiceTest {
         int actualPlayerId2 = service.createPlayer(expectedPlayerNick2);
 
 
+        //Формируем эталонную коллекцию
         Collection<Player> expectedPlayerCollection = new ArrayList<>();
         expectedPlayerCollection.add(service.getPlayerById(actualPlayerId1));
         expectedPlayerCollection.add(service.getPlayerById(actualPlayerId2));
 
+        //Получаем то что было сохранено в файл
         DataProviderJSON dataProviderJSON = new DataProviderJSON();
         Collection<Player> actualPlayerCollection = dataProviderJSON.load();
 
@@ -229,3 +253,5 @@ public class PlayerServiceTest {
     }
 
 }
+
+//todo: добавить комментарии к коду
