@@ -5,6 +5,7 @@ import helpers.MyWatchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import ru.inno.course.player.data.DataProviderJSON;
 import ru.inno.course.player.model.Player;
 import ru.inno.course.player.service.PlayerService;
 import ru.inno.course.player.service.PlayerServiceImpl;
@@ -12,6 +13,7 @@ import ru.inno.course.player.service.PlayerServiceImpl;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
@@ -201,6 +203,29 @@ public class PlayerServiceTest {
         String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
 
         assertEquals(expectedPlayer, actualPlayer.toString());
+    }
+
+    @Test
+    @DisplayName("Проверить корректность сохранения в файл")
+    @Tag("Positive_TC")
+    public void savingToFileTest() throws IOException {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick1 = "Nick1";
+        String expectedPlayerNick2 = "Nick2";
+
+        int actualPlayerId1 = service.createPlayer(expectedPlayerNick1);
+        int actualPlayerId2 = service.createPlayer(expectedPlayerNick2);
+
+
+        Collection<Player> expectedPlayerCollection = new ArrayList<>();
+        expectedPlayerCollection.add(service.getPlayerById(actualPlayerId1));
+        expectedPlayerCollection.add(service.getPlayerById(actualPlayerId2));
+
+        DataProviderJSON dataProviderJSON = new DataProviderJSON();
+        Collection<Player> actualPlayerCollection = dataProviderJSON.load();
+
+        assertEquals(expectedPlayerCollection, actualPlayerCollection);
     }
 
 }
