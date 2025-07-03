@@ -277,6 +277,18 @@ public class PlayerServiceTest {
         assertEquals(expectedPlayerId, actualPlayerId);
     }
 
+    @Test
+    @DisplayName("12. Проверить создание игрока с 15 символами")
+    @Tag("Positive_TC")
+    public void createPlayerWith15SymbolsTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedNick = "K".repeat(15);
+
+        String actualNick = service.getPlayerById(service.createPlayer(expectedNick)).getNick();
+
+        assertEquals(expectedNick, actualNick);
+    }
 }
 
 //todo: добавить комментарии к коду
