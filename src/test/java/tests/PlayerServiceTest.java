@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import helpers.MyWatchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import ru.inno.course.player.data.DataProviderJSON;
 import ru.inno.course.player.model.Player;
 import ru.inno.course.player.service.PlayerService;
@@ -45,6 +44,7 @@ public class PlayerServiceTest {
     @Test
     @DisplayName("1. Добавить игрока в пустой список")
     @Tag("Positive_TC")
+    @ExtendWith(MyWatchers.class)
     public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -63,6 +63,7 @@ public class PlayerServiceTest {
     @Test
     @DisplayName("1. Добавить игрока в не пустой список")
     @Tag("Positive_TC")
+    @ExtendWith(MyWatchers.class)
     public void createPlayerInNotEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -75,6 +76,7 @@ public class PlayerServiceTest {
         String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
 
         assertEquals(expectedPlayer, service.getPlayerById(actualPlayerId).toString());
+
     }
 
     @Test
@@ -222,9 +224,9 @@ public class PlayerServiceTest {
 
         assertAll("Несколько проверок",
                 //Проверяем что файл существует
-                () -> assertFalse(Files.exists(Path.of("data.json"))),
+                () -> assertTrue(Files.exists(Path.of("data.json"))),
                 //Проверяем что файл не пустой
-                () -> assertFalse(file.length() > 0));
+                () -> assertTrue(file.length() > 0));
     }
 
     @Test
@@ -250,6 +252,29 @@ public class PlayerServiceTest {
         Collection<Player> actualPlayerCollection = dataProviderJSON.load();
 
         assertEquals(expectedPlayerCollection, actualPlayerCollection);
+    }
+
+    @Test
+    @DisplayName("10. Проверить что id всегда уникальный")
+    @Tag("Positive_TC")
+    public void idIsUniqueTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedNick = "Nick";
+        int expectedPlayerId = 6;
+
+        //Создаем 5 игроков
+        for (int i = 0; i < expectedPlayerId - 1; i++) {
+            service.createPlayer(expectedNick + (i + 1));
+        }
+
+        //Удаляем третьего
+        service.deletePlayer(3);
+
+        //Добавляем шестого
+        int actualPlayerId = service.createPlayer(expectedNick + expectedPlayerId);
+
+        assertEquals(expectedPlayerId, actualPlayerId);
     }
 
 }
