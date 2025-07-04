@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import helpers.MyWatchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opentest4j.AssertionFailedError;
 import ru.inno.course.player.data.DataProviderJSON;
 import ru.inno.course.player.model.Player;
 import ru.inno.course.player.service.PlayerService;
@@ -63,9 +64,12 @@ public class PlayerServiceNegativeTests {
             service.createPlayer(expectedPlayerNick + (i + 1));
         }
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.deletePlayer(expectedPlayerId));
-
-        assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
+        try {
+            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.deletePlayer(expectedPlayerId));
+            assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
     }
 
     @Test
@@ -79,9 +83,13 @@ public class PlayerServiceNegativeTests {
 
         service.createPlayer(expectedPlayerNick);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
+        try {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
+            assertEquals("Nickname is already in use: " + expectedPlayerNick, exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
 
-        assertEquals("Nickname is already in use: " + expectedPlayerNick, exception.getMessage());
     }
 
     @Test
@@ -96,9 +104,32 @@ public class PlayerServiceNegativeTests {
 
         service.createPlayer(expectedPlayerNick);
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedPlayerId));
+        try {
+            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedPlayerId));
+            assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
 
-        assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("4. Сохранить игрока с пустым ником")
+    @Tag("Negative_TC")
+    //@ExtendWith(MyWatchers.class)
+    public void createPlayerWithEmptyNickTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "";
+
+        try {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
+            assertEquals("Nickname is empty!", exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
+
+
     }
 
 }
