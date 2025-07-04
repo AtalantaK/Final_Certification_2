@@ -146,6 +146,23 @@ public class PlayerServiceNegativeTests {
         }
     }
 
+    @Test
+    @DisplayName("6. Начислить очки игроку которого нет")
+    @Tag("Negative_TC")
+    //@ExtendWith(MyWatchers.class)
+    public void addPointsForNonExistingPlayerTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+        int expectedPoints = 200;
+        int expectedPLayerId = 1000;
+
+        service.createPlayer(expectedPlayerNick);
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.addPoints(expectedPLayerId, expectedPoints));
+        assertEquals("No such user: " + expectedPLayerId, exception.getMessage());
+    }
+
 }
 
 //todo: добавить комментарии к коду
