@@ -302,3 +302,8 @@ public class PlayerServicePositiveTests {
 }
 
 //todo: добавить комментарии к коду
+//todo: вынести создание сервиса в beforeeach?
+//todo: убрать создание пустого файла?
+//todo: добавить html отчет
+//todo: добавить resolver
+//Faker

@@ -2,10 +2,7 @@ package tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import helpers.MyWatchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import ru.inno.course.player.data.DataProviderJSON;
 import ru.inno.course.player.model.Player;
@@ -26,6 +23,11 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerServiceNegativeTests {
+
+    @BeforeAll
+    public static void beforeAll() {
+        System.out.println("Запускаю тесты");
+    }
 
     @BeforeEach
     public void clearBefore() throws IOException {
@@ -50,7 +52,7 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("1. Удалить игрока которого нет")
     @Tag("Negative_TC")
-    @ExtendWith(MyWatchers.class)
+    //@ExtendWith(MyWatchers.class)
     public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -64,6 +66,22 @@ public class PlayerServiceNegativeTests {
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.deletePlayer(expectedPlayerId));
 
         assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("2. Создать дубликат")
+    @Tag("Negative_TC")
+    //@ExtendWith(MyWatchers.class)
+    public void createDuplicateTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+
+        service.createPlayer(expectedPlayerNick);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
+
+        assertEquals("Nickname is already in use: " + expectedPlayerNick, exception.getMessage());
     }
 
 }
