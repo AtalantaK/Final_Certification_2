@@ -89,7 +89,6 @@ public class PlayerServiceNegativeTests {
         } catch (AssertionFailedError assertionFailedError) {
             fail("Нет исключения для невалидной ситуации!");
         }
-
     }
 
     @Test
@@ -110,7 +109,6 @@ public class PlayerServiceNegativeTests {
         } catch (AssertionFailedError assertionFailedError) {
             fail("Нет исключения для невалидной ситуации!");
         }
-
     }
 
     @Test
@@ -128,8 +126,24 @@ public class PlayerServiceNegativeTests {
         } catch (AssertionFailedError assertionFailedError) {
             fail("Нет исключения для невалидной ситуации!");
         }
+    }
 
+    @Test
+    @DisplayName("5. Начислить отрицательное число очков")
+    @Tag("Negative_TC")
+    //@ExtendWith(MyWatchers.class)
+    public void addNegativePointsTest() {
+        PlayerService service = new PlayerServiceImpl();
 
+        String expectedPlayerNick = "Nick";
+        int expectedPoints = -200;
+
+        try {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.addPoints(service.createPlayer(expectedPlayerNick), expectedPoints));
+            assertEquals("You cannot add negative points!", exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
     }
 
 }
