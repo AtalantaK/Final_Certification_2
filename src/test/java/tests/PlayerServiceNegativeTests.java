@@ -69,7 +69,7 @@ public class PlayerServiceNegativeTests {
     }
 
     @Test
-    @DisplayName("2. Создать дубликат")
+    @DisplayName("2. Создать дубликат (имя уже занято)")
     @Tag("Negative_TC")
     //@ExtendWith(MyWatchers.class)
     public void createDuplicateTest() {
@@ -82,6 +82,23 @@ public class PlayerServiceNegativeTests {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
 
         assertEquals("Nickname is already in use: " + expectedPlayerNick, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("3. Получить игрока по id, которого нет")
+    @Tag("Negative_TC")
+    //@ExtendWith(MyWatchers.class)
+    public void getPlayerForNonExistingIdTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedPlayerNick = "Nick";
+        int expectedPlayerId = 1000;
+
+        service.createPlayer(expectedPlayerNick);
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedPlayerId));
+
+        assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
     }
 
 }
