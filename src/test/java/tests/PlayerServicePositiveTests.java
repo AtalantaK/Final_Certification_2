@@ -19,7 +19,13 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MyWatchers.class)
 public class PlayerServicePositiveTests {
+
+    public PlayerServicePositiveTests() {
+    }
+
+    static int count;
 
     @BeforeEach
     public void clearBefore() throws IOException {
@@ -29,22 +35,13 @@ public class PlayerServicePositiveTests {
         Collection<Player> currentList = Collections.EMPTY_LIST;
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
-    }
 
-    @AfterEach
-    public void clearAfter() throws IOException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final Path FILEPATH = Path.of("data.json");
-
-        Collection<Player> currentList = Collections.EMPTY_LIST;
-
-        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
+        count++;
     }
 
     @Test
     @DisplayName("1. Добавить игрока в пустой список")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -63,7 +60,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("1. Добавить игрока в не пустой список")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void createPlayerInNotEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -82,7 +78,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("2. Удалить не последнего игрока")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void deleteNotLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -108,7 +103,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("2. Удалить последнего игрока")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void deleteLastPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -130,7 +124,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("3. Создать игрока при условии что JSON файл не существует")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void createPlayerWithoutJSONTest() throws IOException {
         Files.deleteIfExists(Path.of("data.json"));
 
@@ -157,7 +150,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("5. Начислить баллы существующему игроку")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void addPointsForExistingPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -175,7 +167,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("6. Начислить баллы поверх существующих существующему игроку")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void addAdditionalPointsForExistingPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -196,7 +187,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("7. Получить игрока по ID")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void getPlayerByIDTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -215,7 +205,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("8. Проверить корректность загрузки json файла")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void savingToFileTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -237,7 +226,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("9. Проверить корректность загрузки json файла")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void loadJSONFromFileTest() throws IOException {
         PlayerService service = new PlayerServiceImpl();
 
@@ -263,7 +251,7 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("10. Проверить что id всегда уникальный")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
+    //@Disabled("Временно")
     public void idIsUniqueTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -287,7 +275,6 @@ public class PlayerServicePositiveTests {
     @Test
     @DisplayName("12. Проверить создание игрока с 15 символами")
     @Tag("Positive_TC")
-    @ExtendWith(MyWatchers.class)
     public void createPlayerWith15SymbolsTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -298,12 +285,18 @@ public class PlayerServicePositiveTests {
         assertEquals(expectedNick, actualNick);
     }
 
+    @AfterEach
+    public void clearAfter() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final Path FILEPATH = Path.of("data.json");
+
+        Collection<Player> currentList = Collections.EMPTY_LIST;
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
+    }
 
 }
 
 //todo: добавить комментарии к коду
-//todo: вынести создание сервиса в beforeeach?
-//todo: убрать создание пустого файла?
-//todo: добавить html отчет
 //todo: добавить resolver
 //Faker

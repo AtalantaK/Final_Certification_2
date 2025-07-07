@@ -10,11 +10,7 @@ import ru.inno.course.player.model.Player;
 import ru.inno.course.player.service.PlayerService;
 import ru.inno.course.player.service.PlayerServiceImpl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,12 +19,8 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MyWatchers.class)
 public class PlayerServiceNegativeTests {
-
-    @BeforeAll
-    public static void beforeAll() {
-        System.out.println("Запускаю тесты");
-    }
 
     @BeforeEach
     public void clearBefore() throws IOException {
@@ -40,20 +32,19 @@ public class PlayerServiceNegativeTests {
         mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
     }
 
-//    @AfterEach
-//    public void clearAfter() {
-//        final ObjectMapper mapper = new ObjectMapper();
-//        final Path FILEPATH = Path.of("data.json");
-//
-//        Collection<Player> currentList = Collections.EMPTY_LIST;
-//
-//        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
-//    }
+    @AfterEach
+    public void clearAfter() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final Path FILEPATH = Path.of("data.json");
+
+        Collection<Player> currentList = Collections.EMPTY_LIST;
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
+    }
 
     @Test
     @DisplayName("1. Удалить игрока которого нет")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void createPlayerInEmptyListTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -75,7 +66,6 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("2. Создать дубликат (имя уже занято)")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void createDuplicateTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -94,7 +84,6 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("3. Получить игрока по id, которого нет")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void getPlayerForNonExistingIdTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -114,7 +103,6 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("4. Сохранить игрока с пустым ником")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void createPlayerWithEmptyNickTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -131,7 +119,6 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("5. Начислить отрицательное число очков")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void addNegativePointsTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -149,7 +136,6 @@ public class PlayerServiceNegativeTests {
     @Test
     @DisplayName("6. Начислить очки игроку которого нет")
     @Tag("Negative_TC")
-    //@ExtendWith(MyWatchers.class)
     public void addPointsForNonExistingPlayerTest() {
         PlayerService service = new PlayerServiceImpl();
 
@@ -163,6 +149,37 @@ public class PlayerServiceNegativeTests {
         assertEquals("No such user: " + expectedPLayerId, exception.getMessage());
     }
 
-}
+    @Test
+    @DisplayName("11. Проверить корректность загрузки JSON файла. Есть дубликаты")
+    @Tag("Negative_TC")
+    public void loadJSONWithDuplicatesTest() throws IOException {
+        Collection<Player> players = new ArrayList<>();
+        players.add(new Player(1, "Nick", 100, true));
+        players.add(new Player(2, "Nick", 200, false));
+        players.add(new Player(1, "Nick1", 300, false));
 
-//todo: добавить комментарии к коду
+        new DataProviderJSON().save(players);
+
+        try {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new DataProviderJSON().load());
+            assertEquals("JSON file contains duplicates!", exception.getMessage());
+        } catch (AssertionFailedError assertionFailedError) {
+            fail("Нет исключения для невалидной ситуации!");
+        }
+    }
+
+    //todo: ожидаем что длина ника не более 15 символов?
+    @Test
+    @DisplayName("12. Проверить создание игрока с 16 символами")
+    @Tag("Negative_TC")
+    public void createPlayerWith16SymbolsTest() {
+        PlayerService service = new PlayerServiceImpl();
+
+        String expectedNick = "K".repeat(16);
+
+        String actualNick = service.getPlayerById(service.createPlayer(expectedNick)).getNick();
+
+        assertEquals(expectedNick, actualNick);
+    }
+
+}
