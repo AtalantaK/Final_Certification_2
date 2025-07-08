@@ -1,5 +1,6 @@
 package helpers;
 
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -8,6 +9,9 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 public class MyWatchers implements TestWatcher, BeforeAllCallback, AfterAllCallback {
 
@@ -63,11 +67,19 @@ public class MyWatchers implements TestWatcher, BeforeAllCallback, AfterAllCallb
                 </html>
                 """;
 
-        Files.writeString(Path.of("report.html"), head + "<h1>Кол-во пройденных тестов: " + (PassedTC + FailedTC + DisabledTC) + " </h1>"
+        String report = head + "<h1>Кол-во пройденных тестов: " + (PassedTC + FailedTC + DisabledTC) + " </h1>"
                 + "<h2>Основная информация:</h2>"
                 + information
                 + tail
-                + "<h2>Итог:</h2><p><ul><li>" + PassedTC + "шт. - Passed</li><li>" + FailedTC + "шт. - Failed</li><li>" + DisabledTC + "шт. - Disabled</li></ul></p>");
+                + "<h2>Итог:</h2><p>"
+                + "<ul><li>" + PassedTC + " шт. - Passed</li>"
+                + "<li>" + FailedTC + " шт. - Failed</li>"
+                + "<li>" + DisabledTC + " шт. - Disabled</li></ul></p>";
+
+        Document document = Jsoup.parse(report);
+        document.outputSettings().indentAmount(4).prettyPrint(true);
+
+        Files.writeString(Path.of("report.html"), document.outerHtml());
         System.out.println("Тесты завершены");
     }
 
