@@ -140,6 +140,8 @@ public class PlayerServicePositiveTests {
         assertThat(errorOutput).isEqualToIgnoringNewLines("File loading error 1. java.io.FileNotFoundException: data.json (The system cannot find the file specified)");
     }
 
+    // TC 4 пропущен для реализации. Покрывается TC 1
+
     @Test
     @DisplayName("5. Начислить баллы существующему игроку")
     @Tag("Positive_TC")
@@ -262,6 +264,9 @@ public class PlayerServicePositiveTests {
 
         assertEquals(expectedPlayerId, actualPlayerId);
     }
+
+    // TC 11 пропущен для реализации, так как на этапе инициализации уже есть exception
+    // в случае если JSON файл не существует
 
     @Test
     @DisplayName("12. Проверить создание игрока с 15 символами")

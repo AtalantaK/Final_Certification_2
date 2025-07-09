@@ -126,6 +126,11 @@ public class PlayerServiceNegativeTests {
                 () -> assertThatThrownBy(() -> service.addPoints(expectedPLayerId, expectedPoints)).hasMessage("No such user: " + expectedPLayerId));
     }
 
+    // TC 7 пропущен для реализации, так как addPoints на вход в качестве аргумента принимает playerId
+    // TC 8 пропущен для реализации, так как методы на вход принимают int playerId
+    // TC 9 пропущен для реализации, так как имя файла зашито в DataProviderJSON
+    // TC 10 пропущен для реализации, так как addPoints на вход в качестве аргумента принимает int points
+
     @Test
     @DisplayName("11. Проверить корректность загрузки JSON файла. Есть дубликаты")
     @Tag("Negative_TC")
