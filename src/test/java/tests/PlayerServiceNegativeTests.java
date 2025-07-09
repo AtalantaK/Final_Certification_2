@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MyWatchers.class)
@@ -24,16 +25,6 @@ public class PlayerServiceNegativeTests {
 
     @BeforeEach
     public void clearBefore() throws IOException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final Path FILEPATH = Path.of("data.json");
-
-        Collection<Player> currentList = Collections.EMPTY_LIST;
-
-        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
-    }
-
-    @AfterEach
-    public void clearAfter() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         final Path FILEPATH = Path.of("data.json");
 
@@ -55,12 +46,9 @@ public class PlayerServiceNegativeTests {
             service.createPlayer(expectedPlayerNick + (i + 1));
         }
 
-        try {
-            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.deletePlayer(expectedPlayerId));
-            assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.deletePlayer(expectedPlayerId)).isInstanceOf(NoSuchElementException.class),
+                () -> assertThatThrownBy(() -> service.deletePlayer(expectedPlayerId)).hasMessage("No such user: " + expectedPlayerId));
     }
 
     @Test
@@ -73,12 +61,9 @@ public class PlayerServiceNegativeTests {
 
         service.createPlayer(expectedPlayerNick);
 
-        try {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
-            assertEquals("Nickname is already in use: " + expectedPlayerNick, exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.createPlayer(expectedPlayerNick)).hasMessage("Nickname is already in use: " + expectedPlayerNick),
+                () -> assertThatThrownBy(() -> service.createPlayer(expectedPlayerNick)).isInstanceOf(IllegalArgumentException.class));
     }
 
     @Test
@@ -92,12 +77,9 @@ public class PlayerServiceNegativeTests {
 
         service.createPlayer(expectedPlayerNick);
 
-        try {
-            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedPlayerId));
-            assertEquals("No such user: " + expectedPlayerId, exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedPlayerId)).hasMessage("No such user: " + expectedPlayerId),
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedPlayerId)).isInstanceOf(NoSuchElementException.class));
     }
 
     @Test
@@ -108,12 +90,9 @@ public class PlayerServiceNegativeTests {
 
         String expectedPlayerNick = "";
 
-        try {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createPlayer(expectedPlayerNick));
-            assertEquals("Nickname is empty!", exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.createPlayer(expectedPlayerNick)).hasMessage("Nickname is empty!"),
+                () -> assertThatThrownBy(() -> service.createPlayer(expectedPlayerNick)).isInstanceOf(IllegalArgumentException.class));
     }
 
     @Test
@@ -125,12 +104,9 @@ public class PlayerServiceNegativeTests {
         String expectedPlayerNick = "Nick";
         int expectedPoints = -200;
 
-        try {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.addPoints(service.createPlayer(expectedPlayerNick), expectedPoints));
-            assertEquals("You cannot add negative points!", exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.addPoints(service.createPlayer(expectedPlayerNick), expectedPoints)).hasMessage("You cannot add negative points!"),
+                () -> assertThatThrownBy(() -> service.addPoints(service.createPlayer(expectedPlayerNick), expectedPoints)).isInstanceOf(IllegalArgumentException.class));
     }
 
     @Test
@@ -145,8 +121,9 @@ public class PlayerServiceNegativeTests {
 
         service.createPlayer(expectedPlayerNick);
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.addPoints(expectedPLayerId, expectedPoints));
-        assertEquals("No such user: " + expectedPLayerId, exception.getMessage());
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> service.addPoints(expectedPLayerId, expectedPoints)).isInstanceOf(NoSuchElementException.class),
+                () -> assertThatThrownBy(() -> service.addPoints(expectedPLayerId, expectedPoints)).hasMessage("No such user: " + expectedPLayerId));
     }
 
     @Test
@@ -160,15 +137,12 @@ public class PlayerServiceNegativeTests {
 
         new DataProviderJSON().save(players);
 
-        try {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new DataProviderJSON().load());
-            assertEquals("JSON file contains duplicates!", exception.getMessage());
-        } catch (AssertionFailedError assertionFailedError) {
-            fail("Нет исключения для невалидной ситуации!");
-        }
+        assertAll("Несколько проверок",
+                () -> assertThatThrownBy(() -> new DataProviderJSON().load()).isInstanceOf(IllegalArgumentException.class),
+                () -> assertThatThrownBy(() -> new DataProviderJSON().load()).hasMessage("JSON file contains duplicates!"));
+
     }
 
-    //todo: ожидаем что длина ника не более 15 символов?
     @Test
     @DisplayName("12. Проверить создание игрока с 16 символами")
     @Tag("Negative_TC")
@@ -182,4 +156,13 @@ public class PlayerServiceNegativeTests {
         assertEquals(expectedNick, actualNick);
     }
 
+    @AfterEach
+    public void clearAfter() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final Path FILEPATH = Path.of("data.json");
+
+        Collection<Player> currentList = Collections.EMPTY_LIST;
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
+    }
 }

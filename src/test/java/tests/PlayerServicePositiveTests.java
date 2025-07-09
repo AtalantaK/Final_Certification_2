@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MyWatchers.class)
@@ -25,7 +27,6 @@ public class PlayerServicePositiveTests {
     public PlayerServicePositiveTests() {
     }
 
-    static int count;
 
     @BeforeEach
     public void clearBefore() throws IOException {
@@ -35,8 +36,6 @@ public class PlayerServicePositiveTests {
         Collection<Player> currentList = Collections.EMPTY_LIST;
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(FILEPATH.toFile(), currentList);
-
-        count++;
     }
 
     @Test
@@ -52,11 +51,10 @@ public class PlayerServicePositiveTests {
         String expectedPlayer = "Player{id=" + expectedPlayerId + ", nick='" + expectedPlayerNick + "', points=0, isOnline=true}";
 
         assertAll("Несколько проверок",
-                () -> assertTrue(Files.exists(Path.of("data.json"))),
-                () -> assertEquals(expectedPlayer, service.getPlayerById(actualPlayerId).toString()));
+                () -> assertThat(Path.of("data.json")).exists(),
+                () -> assertThat(service.getPlayerById(actualPlayerId).toString()).isEqualTo(expectedPlayer));
     }
 
-    //todo: есть ли смысл проверять в какой список мы добавляем игрока? - возможно есть
     @Test
     @DisplayName("1. Добавить игрока в не пустой список")
     @Tag("Positive_TC")
@@ -89,17 +87,13 @@ public class PlayerServicePositiveTests {
 
         String expectedDeletedPlayer = "Player{id=" + expectedDeletedPlayerId + ", nick='" + expectedDeletedPlayerNick + "', points=0, isOnline=true}";
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            service.getPlayerById(expectedDeletedPlayerId);
-        });
-
         assertAll("Несколько проверок",
-                () -> assertEquals(expectedDeletedPlayer, deletedPlayer.toString()),
-                () -> assertEquals("No such user: " + expectedDeletedPlayerId, exception.getMessage()),
-                () -> assertFalse(service.getPlayers().isEmpty()));
+                () -> assertThat(deletedPlayer.toString()).isEqualTo(expectedDeletedPlayer),
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedDeletedPlayerId)).hasMessage("No such user: " + expectedDeletedPlayerId),
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedDeletedPlayerId)).isInstanceOf(NoSuchElementException.class),
+                () -> assertThat(service.getPlayers()).doesNotContain(new Player(expectedDeletedPlayerId, expectedDeletedPlayerNick, 0, true)));
     }
 
-    //todo: есть ли смысл проверять какого игрока мы удаляем? - возможно есть
     @Test
     @DisplayName("2. Удалить последнего игрока")
     @Tag("Positive_TC")
@@ -113,12 +107,11 @@ public class PlayerServicePositiveTests {
 
         String expectedDeletedPlayer = "Player{id=" + expectedDeletedPlayerId + ", nick='" + expectedDeletedPlayerNick + "', points=0, isOnline=true}";
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getPlayerById(expectedDeletedPlayerId));
-
         assertAll("Несколько проверок",
-                () -> assertEquals(expectedDeletedPlayer, deletedPlayer.toString()),
-                () -> assertEquals("No such user: " + expectedDeletedPlayerId, exception.getMessage()),
-                () -> assertTrue(service.getPlayers().isEmpty()));
+                () -> assertThat(deletedPlayer.toString()).isEqualTo(expectedDeletedPlayer),
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedDeletedPlayerId)).hasMessage("No such user: " + expectedDeletedPlayerId),
+                () -> assertThatThrownBy(() -> service.getPlayerById(expectedDeletedPlayerId)).isInstanceOf(NoSuchElementException.class),
+                () -> assertThat(service.getPlayers()).isEmpty());
     }
 
     @Test
@@ -144,7 +137,7 @@ public class PlayerServicePositiveTests {
         String errorOutput = baos.toString();
 
         // Теперь можно использовать значение
-        assertTrue(errorOutput.contains("File loading error 1. java.io.FileNotFoundException: data.json (The system cannot find the file specified)"));
+        assertThat(errorOutput).isEqualToIgnoringNewLines("File loading error 1. java.io.FileNotFoundException: data.json (The system cannot find the file specified)");
     }
 
     @Test
@@ -217,10 +210,8 @@ public class PlayerServicePositiveTests {
         File file = new File("data.json");
 
         assertAll("Несколько проверок",
-                //Проверяем что файл существует
-                () -> assertTrue(Files.exists(Path.of("data.json"))),
-                //Проверяем что файл не пустой
-                () -> assertTrue(file.length() > 0));
+                () -> assertThat(file).exists(),
+                () -> assertThat(file).isNotEmpty());
     }
 
     @Test
@@ -296,7 +287,3 @@ public class PlayerServicePositiveTests {
     }
 
 }
-
-//todo: добавить комментарии к коду
-//todo: добавить resolver
-//Faker
